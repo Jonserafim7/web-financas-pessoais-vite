@@ -41,13 +41,10 @@ export function EditTransactionDialog({
 
   const updateMutation = useTransactionsControllerUpdate({
     mutation: {
-      onSuccess: async (data) => {
-        console.log("[EditTransactionDialog] Mutation success:", data);
-        console.log("[EditTransactionDialog] Invalidating queries...");
+      onSuccess: async () => {
         await queryClient.invalidateQueries({
           queryKey: getTransactionsControllerFindAllQueryKey(),
         });
-        console.log("[EditTransactionDialog] Queries invalidated");
         toast.success("Transação atualizada com sucesso");
         onOpenChange(false);
         setError(null);
@@ -64,17 +61,10 @@ export function EditTransactionDialog({
         setError(message);
         toast.error(message);
       },
-      onMutate: (variables) => {
-        console.log(
-          "[EditTransactionDialog] Mutation started with variables:",
-          variables,
-        );
-      },
     },
   });
 
   const handleSubmit = (data: TransactionFormValues) => {
-    console.log("[EditTransactionDialog] handleSubmit called with data:", data);
     setError(null);
 
     const mutationData = {
@@ -88,16 +78,7 @@ export function EditTransactionDialog({
       },
     };
 
-    console.log("[EditTransactionDialog] Mutation data prepared:", mutationData);
-    console.log("[EditTransactionDialog] Calling updateMutation.mutate...");
-
     updateMutation.mutate(mutationData);
-
-    console.log("[EditTransactionDialog] updateMutation state:", {
-      isPending: updateMutation.isPending,
-      isError: updateMutation.isError,
-      error: updateMutation.error,
-    });
   };
 
   return (
@@ -138,6 +119,7 @@ export function EditTransactionDialog({
             variant="destructive"
             onClick={() => setDeleteOpen(true)}
             disabled={updateMutation.isPending}
+            className="flex items-center gap-2"
           >
             <Trash2 />
             Excluir

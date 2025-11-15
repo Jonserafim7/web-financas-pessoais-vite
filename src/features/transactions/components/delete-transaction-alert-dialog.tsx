@@ -38,12 +38,9 @@ export function DeleteTransactionAlertDialog({
   const deleteMutation = useTransactionsControllerRemove({
     mutation: {
       onSuccess: async () => {
-        console.log("[DeleteTransactionAlertDialog] Mutation success");
-        console.log("[DeleteTransactionAlertDialog] Invalidating queries...");
         await queryClient.invalidateQueries({
           queryKey: getTransactionsControllerFindAllQueryKey(),
         });
-        console.log("[DeleteTransactionAlertDialog] Queries invalidated");
         toast.success("Transação excluída com sucesso");
         onOpenChange(false);
         onDeleteSuccess?.();
@@ -53,20 +50,10 @@ export function DeleteTransactionAlertDialog({
         const message = err.message || "Erro ao excluir transação";
         toast.error(message);
       },
-      onMutate: (variables) => {
-        console.log(
-          "[DeleteTransactionAlertDialog] Mutation started with variables:",
-          variables,
-        );
-      },
     },
   });
 
   const handleDelete = () => {
-    console.log(
-      "[DeleteTransactionAlertDialog] handleDelete called for transaction:",
-      transaction.id,
-    );
     deleteMutation.mutate({ id: transaction.id });
   };
 

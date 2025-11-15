@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/select";
 import { useCategoriesControllerFindAll } from "@/lib/generated/api/categories/categories";
 import type { TransactionResponseDtoType } from "@/lib/generated/models";
+import { TagIcon } from "lucide-react";
 
 interface TransactionCategoryPickerProps {
   value: string;
@@ -41,12 +42,7 @@ export function TransactionCategoryPicker({
             value={category.id}
           >
             <div className="flex items-center gap-2">
-              <div
-                className="size-3 rounded-full"
-                style={{
-                  backgroundColor: category.color ?? "hsl(var(--primary))",
-                }}
-              />
+              <TagIcon className="text-muted-foreground size-3" />
               <span>{category.name}</span>
             </div>
           </SelectItem>

@@ -55,10 +55,8 @@ export function TransactionForm({
     },
     validators: {
       onBlur: ({ value }) => {
-        console.log("[TransactionForm] Validating form values:", value);
         try {
-          const result = formSchema.parse(value);
-          console.log("[TransactionForm] Validation passed:", result);
+          formSchema.parse(value);
           return undefined;
         } catch (error) {
           console.error("[TransactionForm] Validation failed:", error);
@@ -81,13 +79,6 @@ export function TransactionForm({
       },
     },
     onSubmit: async (values) => {
-      console.log("[TransactionForm] Form submitted with values:", values.value);
-      console.log("[TransactionForm] Form state:", {
-        isSubmitting: form.state.isSubmitting,
-        isValid: form.state.isValid,
-        isTouched: form.state.isTouched,
-        errors: form.state.errors,
-      });
       try {
         onSubmit(values.value);
       } catch (error) {
@@ -102,13 +93,6 @@ export function TransactionForm({
       id="transaction-form"
       onSubmit={(e) => {
         e.preventDefault();
-        console.log("[TransactionForm] Form onSubmit event triggered");
-        console.log("[TransactionForm] Current form values:", form.state.values);
-        console.log("[TransactionForm] Form validation state:", {
-          isValid: form.state.isValid,
-          isSubmitting: form.state.isSubmitting,
-          errors: form.state.errors,
-        });
         form.handleSubmit();
       }}
     >

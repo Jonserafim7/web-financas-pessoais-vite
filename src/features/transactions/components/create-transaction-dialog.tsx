@@ -36,14 +36,11 @@ export function CreateTransactionDialog({
 
   const createMutation = useTransactionsControllerCreate({
     mutation: {
-      onSuccess: async (data) => {
-        console.log("[CreateTransactionDialog] Mutation success:", data);
+      onSuccess: async () => {
         // Invalidate transactions list query
-        console.log("[CreateTransactionDialog] Invalidating queries...");
         await queryClient.invalidateQueries({
           queryKey: getTransactionsControllerFindAllQueryKey(),
         });
-        console.log("[CreateTransactionDialog] Queries invalidated");
         // Show success toast
         toast.success("Transação criada com sucesso");
         // Close dialog
@@ -63,17 +60,10 @@ export function CreateTransactionDialog({
         setError(message);
         toast.error(message);
       },
-      onMutate: (variables) => {
-        console.log(
-          "[CreateTransactionDialog] Mutation started with variables:",
-          variables,
-        );
-      },
     },
   });
 
   const handleSubmit = (data: TransactionFormValues) => {
-    console.log("[CreateTransactionDialog] handleSubmit called with data:", data);
     setError(null);
 
     const mutationData = {
@@ -84,20 +74,8 @@ export function CreateTransactionDialog({
       date: data.date.toISOString(),
     };
 
-    console.log(
-      "[CreateTransactionDialog] Mutation data prepared:",
-      mutationData,
-    );
-    console.log("[CreateTransactionDialog] Calling createMutation.mutate...");
-
     createMutation.mutate({
       data: mutationData,
-    });
-
-    console.log("[CreateTransactionDialog] createMutation state:", {
-      isPending: createMutation.isPending,
-      isError: createMutation.isError,
-      error: createMutation.error,
     });
   };
 
