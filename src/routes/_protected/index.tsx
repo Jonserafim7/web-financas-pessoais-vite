@@ -2,9 +2,8 @@ import { Button } from "@/components/ui/button";
 import { useSignOut } from "@/features/auth/hooks/use-sign-out";
 import { createFileRoute } from "@tanstack/react-router";
 import { LogOutIcon } from "lucide-react";
-import { useSession } from "@/features/auth/hooks/use-session";
-import { useTransactionsControllerFindAll } from "@/lib/generated/api/transactions/transactions";
 import { ModeToggle } from "@/components/mode-toggle";
+import { TransactionList } from "@/features/transactions/components/transaction-list";
 
 export const Route = createFileRoute("/_protected/")({
   component: Index,
@@ -12,16 +11,10 @@ export const Route = createFileRoute("/_protected/")({
 
 function Index() {
   const { mutate: signOut } = useSignOut();
-  const { data: session } = useSession();
-  const { data: transactions } = useTransactionsControllerFindAll(undefined, {
-    query: {
-      enabled: !!session?.user?.id,
-    },
-  });
 
   return (
     <div className="relative flex h-screen flex-col items-center justify-center gap-4">
-      <div className="absolute top-0 right-0 flex items-center justify-center gap-2 p-4">
+      <header className="absolute top-0 right-0 flex items-center justify-center gap-2 p-4">
         <ModeToggle />
         <Button
           size={"icon"}
@@ -32,10 +25,10 @@ function Index() {
         >
           <LogOutIcon />
         </Button>
-      </div>
-      <h1 className="text-2xl font-bold">
-        Bem-vindo(a) de volta, {session?.user?.name}!
-      </h1>
+      </header>
+      <main className="flex flex-col items-center justify-center gap-4">
+        <TransactionList />
+      </main>
     </div>
   );
 }
