@@ -8,18 +8,17 @@ import { authKeys } from "../query-keys";
  * after sign-in/sign-up/sign-out operations.
  */
 export function useSession() {
-	return useQuery({
-		// Namespaced query key for cache isolation
-		queryKey: authKeys.session,
-		queryFn: async () => {
-			const result = await authClient.getSession();
-			if (result.error) {
-				throw new Error(result.error.message || "Failed to fetch session");
-			}
-			return result.data;
-		},
-		staleTime: 0,
-		refetchOnMount: "always",
-	});
+  return useQuery({
+    // Namespaced query key for cache isolation
+    queryKey: authKeys.session,
+    queryFn: async () => {
+      const result = await authClient.getSession();
+      if (result.error) {
+        throw new Error(result.error.message || "Failed to fetch session");
+      }
+      return result.data;
+    },
+    staleTime: 0,
+    refetchOnMount: "always",
+  });
 }
-

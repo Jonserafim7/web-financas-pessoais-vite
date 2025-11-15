@@ -1,11 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Outlet } from "@tanstack/react-router";
-import { useSession } from "@/features/auth/hooks/use-session";
+import { createFileRoute, redirect, Outlet } from "@tanstack/react-router";
+import { authKeys } from "@/features/auth/query-keys";
 
 export const Route = createFileRoute("/_protected")({
-  component: RouteComponent,
-});
+  beforeLoad: ({ context }) => {
+    // Check session from query cache directly (more reliable than context)
+    const sessionFromCache = context.queryClient.getQueryData(authKeys.session);
 
-function RouteComponent() {
-  return <div>Hello "/_protected"!</div>;
-}
+    if (!sessionFromCache) {
+      throw redirect({ to: "/sign-in" });
+    }
+  },
+  component: () => <Outlet />,
+});

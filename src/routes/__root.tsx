@@ -1,25 +1,28 @@
-import {
-  createRootRouteWithContext,
-  Link,
-  Outlet,
-} from "@tanstack/react-router";
+import { createRootRouteWithContext, Link, Outlet } from "@tanstack/react-router";
 import type { QueryClient } from "@tanstack/react-query";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { FormDevtoolsPanel } from "@tanstack/react-form-devtools";
+import type { useSession } from "@/features/auth/hooks/use-session";
+import "@/index.css";
+import { Toaster } from "sonner";
 
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
-  {
-    component: RootLayout,
-    notFoundComponent: NotFountComponent,
-  }
-);
+interface RouterContext {
+  queryClient: QueryClient;
+  session: ReturnType<typeof useSession>["data"];
+}
+
+export const Route = createRootRouteWithContext<RouterContext>()({
+  component: RootLayout,
+  notFoundComponent: NotFountComponent,
+});
 
 function RootLayout() {
   return (
     <>
       <Outlet />
+      <Toaster />
       <TanStackDevtools
         plugins={[
           {

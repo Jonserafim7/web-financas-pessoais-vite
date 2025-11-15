@@ -3,15 +3,17 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/query-client";
-
-// Import the generated route tree
+import { useSession } from "./features/auth/hooks/use-session";
+import { ThemeProvider } from "./components/theme-provider";
 import { routeTree } from "./routeTree.gen";
+import { Spinner } from "./components/ui/spinner";
 
 // Create a new router instance
 const router = createRouter({
   routeTree,
   context: {
     queryClient,
+    session: undefined!,
   },
   defaultPreload: "intent",
   defaultPreloadStaleTime: 0,
@@ -25,6 +27,25 @@ declare module "@tanstack/react-router" {
   }
 }
 
+function InnerApp() {
+  const { data: session, isLoading } = useSession();
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
+
+  return (
+    <RouterProvider
+      router={router}
+      context={{ queryClient, session }}
+    />
+  );
+}
+
 // Render the app
 const rootElement = document.getElementById("root")!;
 if (!rootElement.innerHTML) {
@@ -32,8 +53,13 @@ if (!rootElement.innerHTML) {
   root.render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
+        <ThemeProvider
+          defaultTheme="system"
+          storageKey="vite-ui-theme"
+        >
+          <InnerApp />
+        </ThemeProvider>
       </QueryClientProvider>
-    </StrictMode>
+    </StrictMode>,
   );
 }

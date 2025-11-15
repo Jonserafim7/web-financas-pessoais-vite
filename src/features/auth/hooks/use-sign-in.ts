@@ -1,6 +1,8 @@
 import { authClient } from "@/lib/auth-client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authKeys } from "../query-keys";
+import { toast } from "sonner";
+import { useRouter } from "@tanstack/react-router";
 
 /** Sign-in mutation variables. */
 interface SignInVariables {
@@ -14,7 +16,7 @@ interface SignInVariables {
  */
 export function useSignIn() {
   const queryClient = useQueryClient();
-
+  const router = useRouter();
   return useMutation({
     mutationFn: async (variables: SignInVariables) => {
       const result = await authClient.signIn.email({
@@ -22,13 +24,21 @@ export function useSignIn() {
         password: variables.password,
       });
       if (result.error) {
-        throw new Error(result.error.message || "Failed to sign in");
+        throw new Error(result.error.message || "Erro ao fazer login");
       }
       return result.data;
     },
-    onSuccess: () => {
-      // Invalidate session query to trigger refetch and redirect
-      queryClient.invalidateQueries({ queryKey: authKeys.session });
+    onSuccess: async () => {
+      // Refetch session query and wait for it to complete
+      await queryClient.refetchQueries({ queryKey: authKeys.session });
+      // Navigate to home page - beforeLoad guards will check cache directly
+      await router.navigate({ to: "/" });
+      // Show success toast
+      toast.success("Login realizado com sucesso");
+    },
+    onError: (error) => {
+      // Show error toast
+      toast.error(error.message || "Erro ao fazer login");
     },
   });
 }
