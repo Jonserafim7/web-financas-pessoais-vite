@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useSignOut } from "@/features/auth/hooks/use-sign-out";
 import { createFileRoute } from "@tanstack/react-router";
-import { LogOutIcon } from "lucide-react";
+import { LogOutIcon, PlusIcon } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { TransactionList } from "@/features/transactions/components/transaction-list";
+import { CreateTransactionDialog } from "@/features/transactions/components";
 
 export const Route = createFileRoute("/_protected/")({
   component: Index,
@@ -11,6 +13,7 @@ export const Route = createFileRoute("/_protected/")({
 
 function Index() {
   const { mutate: signOut } = useSignOut();
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   return (
     <div className="relative flex h-screen flex-col items-center justify-center gap-4">
@@ -27,8 +30,17 @@ function Index() {
         </Button>
       </header>
       <main className="flex flex-col items-center justify-center gap-4">
+        <Button onClick={() => setIsCreateDialogOpen(true)}>
+          <PlusIcon />
+          Nova Transação
+        </Button>
         <TransactionList />
       </main>
+
+      <CreateTransactionDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+      />
     </div>
   );
 }
