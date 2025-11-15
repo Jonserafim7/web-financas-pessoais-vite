@@ -21,6 +21,7 @@ import {
   useTransactionsControllerCreate,
   getTransactionsControllerFindAllQueryKey,
 } from "@/lib/generated/api/transactions/transactions";
+import { getReportsControllerGetSummaryQueryKey } from "@/lib/generated/api/reports/reports";
 
 interface CreateTransactionDialogProps {
   open: boolean;
@@ -37,10 +38,15 @@ export function CreateTransactionDialog({
   const createMutation = useTransactionsControllerCreate({
     mutation: {
       onSuccess: async () => {
-        // Invalidate transactions list query
-        await queryClient.invalidateQueries({
-          queryKey: getTransactionsControllerFindAllQueryKey(),
-        });
+        // Invalidate queries in parallel
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: getTransactionsControllerFindAllQueryKey(),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: getReportsControllerGetSummaryQueryKey(),
+          }),
+        ]);
         // Show success toast
         toast.success("Transação criada com sucesso");
         // Close dialog

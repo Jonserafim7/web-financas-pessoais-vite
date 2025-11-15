@@ -25,3 +25,44 @@ export function formatTransactionDate(date: string | Date): string {
     return "";
   }
 }
+
+/**
+ * Safely formats a number or string to Brazilian currency format (R$ X.XXX,XX)
+ * @param amount - Number or string to format (can be null/undefined)
+ * @returns Formatted currency string (e.g., "R$ 1.000,00") or "R$ 0,00" for invalid inputs
+ */
+export function formatCurrency(
+  amount: string | number | null | undefined,
+): string {
+  try {
+    if (amount === null || amount === undefined) {
+      return "R$ 0,00";
+    }
+
+    // Convert string to number if needed
+    const numAmount =
+      typeof amount === "string" ? Number.parseFloat(amount) : amount;
+
+    if (Number.isNaN(numAmount) || !Number.isFinite(numAmount)) {
+      if (import.meta.env.DEV) {
+        console.warn(
+          `formatCurrency: Invalid amount value "${amount}", returning "R$ 0,00"`,
+        );
+      }
+      return "R$ 0,00";
+    }
+
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(numAmount);
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.error(
+        `formatCurrency: Error formatting amount "${amount}":`,
+        error,
+      );
+    }
+    return "R$ 0,00";
+  }
+}

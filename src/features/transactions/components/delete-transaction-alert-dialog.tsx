@@ -16,6 +16,7 @@ import {
   useTransactionsControllerRemove,
   getTransactionsControllerFindAllQueryKey,
 } from "@/lib/generated/api/transactions/transactions";
+import { getReportsControllerGetSummaryQueryKey } from "@/lib/generated/api/reports/reports";
 import type { TransactionResponseDto } from "@/lib/generated/models";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
@@ -38,9 +39,15 @@ export function DeleteTransactionAlertDialog({
   const deleteMutation = useTransactionsControllerRemove({
     mutation: {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({
-          queryKey: getTransactionsControllerFindAllQueryKey(),
-        });
+        // Invalidate queries in parallel
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: getTransactionsControllerFindAllQueryKey(),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: getReportsControllerGetSummaryQueryKey(),
+          }),
+        ]);
         toast.success("Transação excluída com sucesso");
         onOpenChange(false);
         onDeleteSuccess?.();

@@ -21,6 +21,7 @@ import {
   useTransactionsControllerUpdate,
   getTransactionsControllerFindAllQueryKey,
 } from "@/lib/generated/api/transactions/transactions";
+import { getReportsControllerGetSummaryQueryKey } from "@/lib/generated/api/reports/reports";
 import type { TransactionResponseDto } from "@/lib/generated/models";
 import { DeleteTransactionAlertDialog } from "./delete-transaction-alert-dialog";
 
@@ -42,9 +43,15 @@ export function EditTransactionDialog({
   const updateMutation = useTransactionsControllerUpdate({
     mutation: {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({
-          queryKey: getTransactionsControllerFindAllQueryKey(),
-        });
+        // Invalidate queries in parallel
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: getTransactionsControllerFindAllQueryKey(),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: getReportsControllerGetSummaryQueryKey(),
+          }),
+        ]);
         toast.success("Transação atualizada com sucesso");
         onOpenChange(false);
         setError(null);
