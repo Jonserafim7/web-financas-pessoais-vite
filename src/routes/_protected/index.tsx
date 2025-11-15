@@ -25,7 +25,10 @@ function Index() {
               Histórico de Transações
             </h2>
           </div>
-          <Button onClick={() => setIsCreateDialogOpen(true)}>
+          <Button
+            variant={"secondary"}
+            onClick={() => setIsCreateDialogOpen(true)}
+          >
             <PlusIcon />
             Nova Transação
           </Button>

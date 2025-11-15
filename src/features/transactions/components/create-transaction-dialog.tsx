@@ -137,6 +137,7 @@ export function CreateTransactionDialog({
             Cancelar
           </Button>
           <Button
+            variant={"secondary"}
             type="submit"
             form="transaction-form"
             disabled={createMutation.isPending}

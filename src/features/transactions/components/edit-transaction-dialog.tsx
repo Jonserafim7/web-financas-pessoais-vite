@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircleIcon } from "lucide-react";
+import { AlertCircleIcon, Trash2 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import {
   TransactionForm,
@@ -22,6 +22,7 @@ import {
   getTransactionsControllerFindAllQueryKey,
 } from "@/lib/generated/api/transactions/transactions";
 import type { TransactionResponseDto } from "@/lib/generated/models";
+import { DeleteTransactionAlertDialog } from "./delete-transaction-alert-dialog";
 
 interface EditTransactionDialogProps {
   open: boolean;
@@ -36,6 +37,7 @@ export function EditTransactionDialog({
 }: EditTransactionDialogProps) {
   const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const updateMutation = useTransactionsControllerUpdate({
     mutation: {
@@ -123,17 +125,26 @@ export function EditTransactionDialog({
           </Alert>
         )}
 
+        <DeleteTransactionAlertDialog
+          open={deleteOpen}
+          onOpenChange={setDeleteOpen}
+          transaction={transaction}
+          onDeleteSuccess={() => onOpenChange(false)}
+        />
+
         <DialogFooter>
           <Button
             type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
+            variant="destructive"
+            onClick={() => setDeleteOpen(true)}
             disabled={updateMutation.isPending}
           >
-            Cancelar
+            <Trash2 />
+            Excluir
           </Button>
           <Button
             type="submit"
+            variant={"secondary"}
             form="transaction-form"
             disabled={updateMutation.isPending}
           >
