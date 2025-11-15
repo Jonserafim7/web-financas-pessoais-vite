@@ -13,8 +13,14 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircleIcon } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
-import { TransactionForm, type TransactionFormValues } from "./form/transaction-form";
-import { useTransactionsControllerUpdate } from "@/lib/generated/api/transactions/transactions";
+import {
+  TransactionForm,
+  type TransactionFormValues,
+} from "./form/transaction-form";
+import {
+  useTransactionsControllerUpdate,
+  getTransactionsControllerFindAllQueryKey,
+} from "@/lib/generated/api/transactions/transactions";
 import type { TransactionResponseDto } from "@/lib/generated/models";
 
 interface EditTransactionDialogProps {
@@ -33,29 +39,43 @@ export function EditTransactionDialog({
 
   const updateMutation = useTransactionsControllerUpdate({
     mutation: {
-      onSuccess: async () => {
-        // Invalidate transactions list query
+      onSuccess: async (data) => {
+        console.log("[EditTransactionDialog] Mutation success:", data);
+        console.log("[EditTransactionDialog] Invalidating queries...");
         await queryClient.invalidateQueries({
-          queryKey: ["transactionsControllerFindAll"],
+          queryKey: getTransactionsControllerFindAllQueryKey(),
         });
-        // Show success toast
+        console.log("[EditTransactionDialog] Queries invalidated");
         toast.success("Transação atualizada com sucesso");
-        // Close dialog
         onOpenChange(false);
-        // Clear error
         setError(null);
       },
       onError: (err) => {
+        console.error("[EditTransactionDialog] Mutation error:", err);
+        console.error("[EditTransactionDialog] Error details:", {
+          message: err.message,
+          response: err.response,
+          status: err.status,
+          error: err,
+        });
         const message = err.message || "Erro ao atualizar transação";
         setError(message);
         toast.error(message);
+      },
+      onMutate: (variables) => {
+        console.log(
+          "[EditTransactionDialog] Mutation started with variables:",
+          variables,
+        );
       },
     },
   });
 
   const handleSubmit = (data: TransactionFormValues) => {
+    console.log("[EditTransactionDialog] handleSubmit called with data:", data);
     setError(null);
-    updateMutation.mutate({
+
+    const mutationData = {
       id: transaction.id,
       data: {
         type: data.type,
@@ -64,17 +84,29 @@ export function EditTransactionDialog({
         description: data.description,
         date: data.date.toISOString(),
       },
+    };
+
+    console.log("[EditTransactionDialog] Mutation data prepared:", mutationData);
+    console.log("[EditTransactionDialog] Calling updateMutation.mutate...");
+
+    updateMutation.mutate(mutationData);
+
+    console.log("[EditTransactionDialog] updateMutation state:", {
+      isPending: updateMutation.isPending,
+      isError: updateMutation.isError,
+      error: updateMutation.error,
     });
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+    >
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Editar Transação</DialogTitle>
-          <DialogDescription>
-            Altere os dados da transação
-          </DialogDescription>
+          <DialogDescription>Altere os dados da transação</DialogDescription>
         </DialogHeader>
 
         <TransactionForm
