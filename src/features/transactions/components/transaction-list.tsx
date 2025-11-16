@@ -5,17 +5,25 @@ import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, InboxIcon } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-export function TransactionList() {
+interface TransactionListProps {
+	dateFrom?: string;
+	dateTo?: string;
+}
+
+export function TransactionList({ dateFrom, dateTo }: TransactionListProps) {
   const { data: session } = useSession();
   const {
     data: transactions,
     isPending,
     isError,
-  } = useTransactionsControllerFindAll(undefined, {
-    query: {
-      enabled: !!session?.user?.id,
+  } = useTransactionsControllerFindAll(
+    dateFrom || dateTo ? { dateFrom, dateTo } : undefined,
+    {
+      query: {
+        enabled: !!session?.user?.id,
+      },
     },
-  });
+  );
 
   if (isPending) {
     return (

@@ -14,8 +14,15 @@ import {
   ChevronsUp,
 } from "lucide-react";
 
-export function TransactionsSummary() {
-  const { data: summary } = useReportsControllerGetSummary();
+interface TransactionsSummaryProps {
+	dateFrom?: string;
+	dateTo?: string;
+}
+
+export function TransactionsSummary({ dateFrom, dateTo }: TransactionsSummaryProps) {
+  const { data: summary } = useReportsControllerGetSummary(
+    dateFrom || dateTo ? { dateFrom, dateTo } : undefined
+  );
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
