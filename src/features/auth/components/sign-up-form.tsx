@@ -1,10 +1,10 @@
 // validations
 import { z } from "zod";
-// router
-import { Link } from "@tanstack/react-router";
 // hooks
 import { useForm } from "@tanstack/react-form";
-import { useSignIn } from "../hooks/use-sign-in";
+import { useSignUp } from "../hooks/use-sign-up";
+// router
+import { Link } from "@tanstack/react-router";
 // components
 import { Button } from "@/components/ui/button";
 import {
@@ -21,45 +21,82 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircleIcon } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 
-const formSchema = z.object({
-  email: z.email({ message: "Email inválido" }),
-  password: z
-    .string()
-    .min(8, { message: "Senha deve ter pelo menos 8 caracteres" })
-    .max(64, { message: "Senha deve ter no máximo 64 caracteres" }),
-});
+const formSchema = z
+  .object({
+    name: z
+      .string()
+      .min(2, { message: "Nome deve ter pelo menos 2 caracteres" })
+      .max(128, { message: "Nome deve ter no máximo 128 caracteres" }),
+    email: z.email({ message: "Email inválido" }),
+    password: z
+      .string()
+      .min(8, { message: "Senha deve ter pelo menos 8 caracteres" })
+      .max(64, { message: "Senha deve ter no máximo 64 caracteres" }),
+    confirmPassword: z
+      .string()
+      .min(1, { message: "Confirmação de senha é obrigatória" }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "As senhas não conferem",
+    path: ["confirmPassword"],
+  });
 
-export function SignInForm() {
-  const { mutate: signIn, isPending, error } = useSignIn();
+export function SignUpForm() {
+  const { mutate: signUp, isPending, error } = useSignUp();
+
   const form = useForm({
     defaultValues: {
+      name: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
     validators: {
       onBlur: formSchema,
     },
     onSubmit: (values) => {
-      const { email, password } = values.value;
-      signIn({ email, password });
+      const { name, email, password } = values.value;
+      signUp({ name, email, password });
     },
   });
 
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Login</CardTitle>
-        <CardDescription>Faça login para continuar</CardDescription>
+        <CardTitle>Criar conta</CardTitle>
+        <CardDescription>Cadastre-se para começar a usar</CardDescription>
       </CardHeader>
       <CardContent>
         <form
-          id="sign-in-form"
+          id="sign-up-form"
           onSubmit={(e) => {
             e.preventDefault();
             form.handleSubmit();
           }}
         >
           <FieldGroup>
+            <form.Field
+              name="name"
+              children={(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>Nome</FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      aria-invalid={isInvalid}
+                      placeholder="Seu nome"
+                    />
+                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                  </Field>
+                );
+              }}
+            />
             <form.Field
               name="email"
               children={(field) => {
@@ -105,6 +142,29 @@ export function SignInForm() {
                 );
               }}
             />
+            <form.Field
+              name="confirmPassword"
+              children={(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>Confirmar senha</FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      aria-invalid={isInvalid}
+                      placeholder="Confirme sua senha"
+                      type="password"
+                    />
+                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                  </Field>
+                );
+              }}
+            />
           </FieldGroup>
         </form>
         {error && (
@@ -122,20 +182,20 @@ export function SignInForm() {
         <Field orientation="horizontal">
           <Button
             type="submit"
-            form="sign-in-form"
+            form="sign-up-form"
             className="w-full"
             disabled={isPending || form.state.isSubmitting}
           >
-            {isPending || form.state.isSubmitting ? <Spinner /> : "Login"}
+            {isPending || form.state.isSubmitting ? <Spinner /> : "Criar conta"}
           </Button>
         </Field>
         <p className="text-muted-foreground text-center text-sm">
-          Não tem conta?{" "}
+          Já tem conta?{" "}
           <Link
-            to="/sign-up"
+            to="/sign-in"
             className="text-primary font-medium underline-offset-4 hover:underline"
           >
-            Cadastre-se
+            Faça login
           </Link>
         </p>
       </CardFooter>

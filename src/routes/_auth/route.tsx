@@ -1,10 +1,9 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
-// components
-import { SignInForm } from "@/features/auth/components/sign-in-form";
 import { ModeToggle } from "@/components/mode-toggle";
 import { authKeys } from "@/features/auth/query-keys";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { Outlet } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/sign-in")({
+export const Route = createFileRoute("/_auth")({
   beforeLoad: ({ context }) => {
     // Check session from query cache directly (more reliable than context)
     const sessionFromCache = context.queryClient.getQueryData(authKeys.session);
@@ -22,7 +21,7 @@ function RouteComponent() {
       <div className="absolute top-4 right-4">
         <ModeToggle />
       </div>
-      <SignInForm />
+      <Outlet />
     </div>
   );
 }
