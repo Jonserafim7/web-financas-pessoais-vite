@@ -44,7 +44,11 @@ export function TransactionItem({ transaction }: TransactionItemProps) {
           {/* Category + Description */}
           <div className="flex flex-col">
             <span className="text-foreground font-medium">
-              {transaction.description ?? (isIncome ? "Receita" : "Despesa")}
+              {transaction.description && transaction.description.trim() !== ""
+                ? transaction.description
+                : isIncome
+                  ? "Receita"
+                  : "Despesa"}
             </span>
             <div className="flex items-center gap-1.5">
               <TagIcon className="text-muted-foreground size-3.5" />

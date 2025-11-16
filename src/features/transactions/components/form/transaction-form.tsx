@@ -28,7 +28,7 @@ const formSchema = z.object({
       },
       { message: "Máximo de 2 casas decimais" },
     ),
-  description: z.string().optional(),
+  description: z.string().or(z.literal("")),
   date: z.date({ message: "Data inválida" }),
 });
 
@@ -50,41 +50,14 @@ export function TransactionForm({
       type: transaction?.type ?? TransactionResponseDtoType.EXPENSE,
       categoryId: transaction?.categoryId ?? "",
       amount: transaction?.amount ? Number(transaction.amount) : 0,
-      description: transaction?.description ?? undefined,
+      description: transaction?.description ?? "",
       date: transaction?.date ? new Date(transaction.date) : new Date(),
     },
     validators: {
-      onBlur: ({ value }) => {
-        try {
-          formSchema.parse(value);
-          return undefined;
-        } catch (error) {
-          console.error("[TransactionForm] Validation failed:", error);
-          if (error instanceof z.ZodError) {
-            const fieldErrors: Record<string, string[]> = {};
-            error.issues.forEach((issue) => {
-              const path = issue.path.join(".");
-              if (!fieldErrors[path]) {
-                fieldErrors[path] = [];
-              }
-              if (issue.message) {
-                fieldErrors[path].push(issue.message);
-              }
-            });
-            console.error("[TransactionForm] Validation errors:", fieldErrors);
-            return fieldErrors;
-          }
-          throw error;
-        }
-      },
+      onBlur: formSchema,
     },
-    onSubmit: async (values) => {
-      try {
-        onSubmit(values.value);
-      } catch (error) {
-        console.error("[TransactionForm] Error in onSubmit callback:", error);
-        throw error;
-      }
+    onSubmit: (values) => {
+      onSubmit(values.value);
     },
   });
 
