@@ -3,8 +3,9 @@ import { useTransactionsControllerFindAll } from "@/lib/generated/api/transactio
 import { useSession } from "@/features/auth/hooks/use-session";
 import { TransactionItem } from "./transaction-item";
 import { Spinner } from "@/components/ui/spinner";
-import { AlertCircleIcon, InboxIcon } from "lucide-react";
+import { AlertCircleIcon, InboxIcon, TrendingUpIcon } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { TrendingDownIcon } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
@@ -114,8 +115,12 @@ export function TransactionList({ dateFrom, dateTo }: TransactionListProps) {
     >
       <TabsList>
         <TabsTrigger value="all">Todas</TabsTrigger>
-        <TabsTrigger value="INCOME">Receitas</TabsTrigger>
-        <TabsTrigger value="EXPENSE">Despesas</TabsTrigger>
+        <TabsTrigger value="INCOME">
+          <TrendingUpIcon className="text-success" /> Receitas
+        </TabsTrigger>
+        <TabsTrigger value="EXPENSE">
+          <TrendingDownIcon className="text-destructive" /> Despesas
+        </TabsTrigger>
       </TabsList>
 
       <div className="space-y-4">

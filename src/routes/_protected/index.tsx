@@ -27,14 +27,14 @@ function Index() {
 
       {/* Main Content */}
       <main className="mx-auto max-w-4xl px-6 py-8">
-        <div className="mb-12">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="font-medium">Resumo Geral</h2>
+        </div>
+        <div className="mb-6">
           <DateRangePicker
             value={dateRange}
             onChange={setDateRange}
           />
-        </div>
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="font-medium">Resumo Geral</h2>
         </div>
         <div className="mb-12 flex flex-col gap-4">
           <TransactionsSummary
