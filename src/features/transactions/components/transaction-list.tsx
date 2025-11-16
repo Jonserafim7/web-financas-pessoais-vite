@@ -15,6 +15,14 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useCategoriesControllerFindAll } from "@/lib/generated/api/categories/categories";
 import type { TransactionsControllerFindAllType } from "@/lib/generated/models";
 
 interface TransactionListProps {
@@ -27,14 +35,23 @@ export function TransactionList({ dateFrom, dateTo }: TransactionListProps) {
   const [typeFilter, setTypeFilter] = useState<
     "all" | TransactionsControllerFindAllType
   >("all");
+  const [categoryFilter, setCategoryFilter] = useState<string | "all">("all");
   const pageSize = 10;
 
   const { data: session } = useSession();
+
+  const { data: categories, isLoading: isLoadingCategories } =
+    useCategoriesControllerFindAll(undefined, {
+      query: {
+        enabled: !!session?.user?.id,
+      },
+    });
 
   const apiTypeFilter =
     typeFilter === "all"
       ? undefined
       : (typeFilter as TransactionsControllerFindAllType);
+  const apiCategoryFilter = categoryFilter === "all" ? undefined : categoryFilter;
 
   const {
     data: transactions,
@@ -46,11 +63,13 @@ export function TransactionList({ dateFrom, dateTo }: TransactionListProps) {
           dateFrom,
           dateTo,
           type: apiTypeFilter,
+          categoryId: apiCategoryFilter,
           limit: pageSize,
           offset: (page - 1) * pageSize,
         }
       : {
           type: apiTypeFilter,
+          categoryId: apiCategoryFilter,
           limit: pageSize,
           offset: (page - 1) * pageSize,
         },
@@ -104,24 +123,50 @@ export function TransactionList({ dateFrom, dateTo }: TransactionListProps) {
   };
 
   return (
-    <Tabs
-      value={typeFilter}
-      onValueChange={(value) => {
-        const typedValue = value as "all" | TransactionsControllerFindAllType;
-        setTypeFilter(typedValue);
-        setPage(1);
-      }}
-      className="space-y-4"
-    >
-      <TabsList>
-        <TabsTrigger value="all">Todas</TabsTrigger>
-        <TabsTrigger value="INCOME">
-          <TrendingUpIcon className="text-success" /> Receitas
-        </TabsTrigger>
-        <TabsTrigger value="EXPENSE">
-          <TrendingDownIcon className="text-destructive" /> Despesas
-        </TabsTrigger>
-      </TabsList>
+    <div className="space-y-4">
+      <Tabs
+        value={typeFilter}
+        onValueChange={(value) => {
+          const typedValue = value as "all" | TransactionsControllerFindAllType;
+          setTypeFilter(typedValue);
+          setPage(1);
+        }}
+        className="space-y-0"
+      >
+        <TabsList>
+          <TabsTrigger value="all">Todas</TabsTrigger>
+          <TabsTrigger value="INCOME">
+            <TrendingUpIcon className="text-success" /> Receitas
+          </TabsTrigger>
+          <TabsTrigger value="EXPENSE">
+            <TrendingDownIcon className="text-destructive" /> Despesas
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      <Select
+        value={categoryFilter}
+        onValueChange={(value) => {
+          setCategoryFilter(value as "all" | string);
+          setPage(1);
+        }}
+        disabled={isLoadingCategories}
+      >
+        <SelectTrigger className="w-full sm:w-64">
+          <SelectValue placeholder="Todas as categorias" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Todas as categorias</SelectItem>
+          {categories?.map((category) => (
+            <SelectItem
+              key={category.id}
+              value={category.id}
+            >
+              {category.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
       <div className="space-y-4">
         <div className="space-y-3">
@@ -184,6 +229,6 @@ export function TransactionList({ dateFrom, dateTo }: TransactionListProps) {
           </Pagination>
         )}
       </div>
-    </Tabs>
+    </div>
   );
 }
