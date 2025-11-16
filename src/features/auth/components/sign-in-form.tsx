@@ -15,12 +15,6 @@ import {
 } from "@/components/ui/card";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupText,
-  InputGroupTextarea,
-} from "@/components/ui/input-group";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircleIcon } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
@@ -125,15 +119,9 @@ export function SignInForm() {
       <CardFooter>
         <Field orientation="horizontal">
           <Button
-            type="button"
-            variant="outline"
-            onClick={() => form.reset()}
-          >
-            Limpar
-          </Button>
-          <Button
             type="submit"
             form="sign-in-form"
+            className="w-full"
             disabled={isPending || form.state.isSubmitting}
           >
             {isPending || form.state.isSubmitting ? <Spinner /> : "Login"}
