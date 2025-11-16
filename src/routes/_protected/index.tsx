@@ -34,7 +34,7 @@ function Index() {
           />
         </div>
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="font-medium">Resumo</h2>
+          <h2 className="font-medium">Resumo Geral</h2>
         </div>
         <div className="mb-12 flex flex-col gap-4">
           <TransactionsSummary
@@ -45,7 +45,7 @@ function Index() {
 
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h2 className="font-medium">Histórico</h2>
+            <h2 className="font-medium">Transações</h2>
           </div>
           <Button
             variant={"outline"}

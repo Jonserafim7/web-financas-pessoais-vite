@@ -13,6 +13,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { TransactionsControllerFindAllType } from "@/lib/generated/models";
 
 interface TransactionListProps {
   dateFrom?: string;
@@ -21,9 +23,18 @@ interface TransactionListProps {
 
 export function TransactionList({ dateFrom, dateTo }: TransactionListProps) {
   const [page, setPage] = useState(1);
+  const [typeFilter, setTypeFilter] = useState<
+    "all" | TransactionsControllerFindAllType
+  >("all");
   const pageSize = 10;
 
   const { data: session } = useSession();
+
+  const apiTypeFilter =
+    typeFilter === "all"
+      ? undefined
+      : (typeFilter as TransactionsControllerFindAllType);
+
   const {
     data: transactions,
     isPending,
@@ -33,10 +44,12 @@ export function TransactionList({ dateFrom, dateTo }: TransactionListProps) {
       ? {
           dateFrom,
           dateTo,
+          type: apiTypeFilter,
           limit: pageSize,
           offset: (page - 1) * pageSize,
         }
       : {
+          type: apiTypeFilter,
           limit: pageSize,
           offset: (page - 1) * pageSize,
         },
@@ -90,66 +103,82 @@ export function TransactionList({ dateFrom, dateTo }: TransactionListProps) {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-3">
-        {transactions.results?.map((transaction) => (
-          <TransactionItem
-            key={transaction.id}
-            transaction={transaction}
-          />
-        ))}
+    <Tabs
+      value={typeFilter}
+      onValueChange={(value) => {
+        const typedValue = value as "all" | TransactionsControllerFindAllType;
+        setTypeFilter(typedValue);
+        setPage(1);
+      }}
+      className="space-y-4"
+    >
+      <TabsList>
+        <TabsTrigger value="all">Todas</TabsTrigger>
+        <TabsTrigger value="INCOME">Receitas</TabsTrigger>
+        <TabsTrigger value="EXPENSE">Despesas</TabsTrigger>
+      </TabsList>
+
+      <div className="space-y-4">
+        <div className="space-y-3">
+          {transactions.results?.map((transaction) => (
+            <TransactionItem
+              key={transaction.id}
+              transaction={transaction}
+            />
+          ))}
+        </div>
+
+        {totalPages > 1 && (
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  aria-disabled={page === 1}
+                  className={page === 1 ? "pointer-events-none opacity-50" : ""}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    handlePageChange(page - 1);
+                  }}
+                />
+              </PaginationItem>
+
+              {Array.from({ length: totalPages }).map((_, index) => {
+                const pageNumber = index + 1;
+
+                return (
+                  <PaginationItem key={pageNumber}>
+                    <PaginationLink
+                      href="#"
+                      isActive={page === pageNumber}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        handlePageChange(pageNumber);
+                      }}
+                    >
+                      {pageNumber}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+              })}
+
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  aria-disabled={page === totalPages}
+                  className={
+                    page === totalPages ? "pointer-events-none opacity-50" : ""
+                  }
+                  onClick={(event) => {
+                    event.preventDefault();
+                    handlePageChange(page + 1);
+                  }}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
       </div>
-
-      {totalPages > 1 && (
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                href="#"
-                aria-disabled={page === 1}
-                className={page === 1 ? "pointer-events-none opacity-50" : ""}
-                onClick={(event) => {
-                  event.preventDefault();
-                  handlePageChange(page - 1);
-                }}
-              />
-            </PaginationItem>
-
-            {Array.from({ length: totalPages }).map((_, index) => {
-              const pageNumber = index + 1;
-
-              return (
-                <PaginationItem key={pageNumber}>
-                  <PaginationLink
-                    href="#"
-                    isActive={page === pageNumber}
-                    onClick={(event) => {
-                      event.preventDefault();
-                      handlePageChange(pageNumber);
-                    }}
-                  >
-                    {pageNumber}
-                  </PaginationLink>
-                </PaginationItem>
-              );
-            })}
-
-            <PaginationItem>
-              <PaginationNext
-                href="#"
-                aria-disabled={page === totalPages}
-                className={
-                  page === totalPages ? "pointer-events-none opacity-50" : ""
-                }
-                onClick={(event) => {
-                  event.preventDefault();
-                  handlePageChange(page + 1);
-                }}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      )}
-    </div>
+    </Tabs>
   );
 }
