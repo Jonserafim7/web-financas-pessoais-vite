@@ -3,27 +3,13 @@ import { useTransactionsControllerFindAll } from "@/lib/generated/api/transactio
 import { useSession } from "@/features/auth/hooks/use-session";
 import { TransactionItem } from "./transaction-item";
 import { Spinner } from "@/components/ui/spinner";
-import { AlertCircleIcon, InboxIcon, TrendingUpIcon } from "lucide-react";
+import { AlertCircleIcon, InboxIcon } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { TrendingDownIcon } from "lucide-react";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useCategoriesControllerFindAll } from "@/lib/generated/api/categories/categories";
 import type { TransactionsControllerFindAllType } from "@/lib/generated/models";
+import { TransactionTypeFilter } from "./transaction-type-filter";
+import { TransactionCategoryFilter } from "./transaction-category-filter";
+import { TransactionPagination } from "./transaction-pagination";
 
 interface TransactionListProps {
   dateFrom?: string;
@@ -124,49 +110,23 @@ export function TransactionList({ dateFrom, dateTo }: TransactionListProps) {
 
   return (
     <div className="space-y-4">
-      <Tabs
+      <TransactionTypeFilter
         value={typeFilter}
-        onValueChange={(value) => {
-          const typedValue = value as "all" | TransactionsControllerFindAllType;
-          setTypeFilter(typedValue);
+        onChange={(value) => {
+          setTypeFilter(value);
           setPage(1);
         }}
-        className="space-y-0"
-      >
-        <TabsList>
-          <TabsTrigger value="all">Todas</TabsTrigger>
-          <TabsTrigger value="INCOME">
-            <TrendingUpIcon className="text-success" /> Receitas
-          </TabsTrigger>
-          <TabsTrigger value="EXPENSE">
-            <TrendingDownIcon className="text-destructive" /> Despesas
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+      />
 
-      <Select
+      <TransactionCategoryFilter
         value={categoryFilter}
-        onValueChange={(value) => {
-          setCategoryFilter(value as "all" | string);
+        onChange={(value) => {
+          setCategoryFilter(value);
           setPage(1);
         }}
-        disabled={isLoadingCategories}
-      >
-        <SelectTrigger className="w-full sm:w-64">
-          <SelectValue placeholder="Todas as categorias" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Todas as categorias</SelectItem>
-          {categories?.map((category) => (
-            <SelectItem
-              key={category.id}
-              value={category.id}
-            >
-              {category.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        categories={categories}
+        isLoading={isLoadingCategories}
+      />
 
       <div className="space-y-4">
         <div className="space-y-3">
@@ -178,56 +138,11 @@ export function TransactionList({ dateFrom, dateTo }: TransactionListProps) {
           ))}
         </div>
 
-        {totalPages > 1 && (
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href="#"
-                  aria-disabled={page === 1}
-                  className={page === 1 ? "pointer-events-none opacity-50" : ""}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    handlePageChange(page - 1);
-                  }}
-                />
-              </PaginationItem>
-
-              {Array.from({ length: totalPages }).map((_, index) => {
-                const pageNumber = index + 1;
-
-                return (
-                  <PaginationItem key={pageNumber}>
-                    <PaginationLink
-                      href="#"
-                      isActive={page === pageNumber}
-                      onClick={(event) => {
-                        event.preventDefault();
-                        handlePageChange(pageNumber);
-                      }}
-                    >
-                      {pageNumber}
-                    </PaginationLink>
-                  </PaginationItem>
-                );
-              })}
-
-              <PaginationItem>
-                <PaginationNext
-                  href="#"
-                  aria-disabled={page === totalPages}
-                  className={
-                    page === totalPages ? "pointer-events-none opacity-50" : ""
-                  }
-                  onClick={(event) => {
-                    event.preventDefault();
-                    handlePageChange(page + 1);
-                  }}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        )}
+        <TransactionPagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       </div>
     </div>
   );
