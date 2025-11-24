@@ -86,21 +86,8 @@ export function TransactionList({ dateFrom, dateTo }: TransactionListProps) {
     );
   }
 
-  if (!transactions?.results || transactions?.results.length === 0) {
-    return (
-      <div className="border-border flex flex-col items-center justify-center rounded-xl border border-dashed py-16 text-center">
-        <InboxIcon className="text-muted-foreground mb-4 h-12 w-12" />
-        <h3 className="text-foreground mb-2 text-lg font-semibold">
-          Nenhuma transação encontrada
-        </h3>
-        <p className="text-muted-foreground text-sm">
-          Comece criando sua primeira transação.
-        </p>
-      </div>
-    );
-  }
-
-  const total = transactions.total ?? 0;
+  const hasTransactions = transactions?.results && transactions.results.length > 0;
+  const total = transactions?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   const handlePageChange = (newPage: number) => {
@@ -128,22 +115,34 @@ export function TransactionList({ dateFrom, dateTo }: TransactionListProps) {
         isLoading={isLoadingCategories}
       />
 
-      <div className="space-y-4">
-        <div className="space-y-3">
-          {transactions.results?.map((transaction) => (
-            <TransactionItem
-              key={transaction.id}
-              transaction={transaction}
-            />
-          ))}
-        </div>
+      {hasTransactions ? (
+        <div className="space-y-4">
+          <div className="space-y-3">
+            {transactions.results?.map((transaction) => (
+              <TransactionItem
+                key={transaction.id}
+                transaction={transaction}
+              />
+            ))}
+          </div>
 
-        <TransactionPagination
-          currentPage={page}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
-      </div>
+          <TransactionPagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </div>
+      ) : (
+        <div className="border-border flex flex-col items-center justify-center rounded-xl border border-dashed py-16 text-center">
+          <InboxIcon className="text-muted-foreground mb-4 h-12 w-12" />
+          <h3 className="text-foreground mb-2 text-lg font-semibold">
+            Nenhuma transação encontrada
+          </h3>
+          <p className="text-muted-foreground text-sm">
+            Comece criando sua primeira transação.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
