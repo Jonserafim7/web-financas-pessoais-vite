@@ -23,10 +23,12 @@ export function TransactionCategoryFilter({
   categories,
   isLoading,
 }: TransactionCategoryFilterProps) {
-  const incomeCategories =
-    categories?.filter((cat) => cat.type === "INCOME") || [];
-  const expenseCategories =
-    categories?.filter((cat) => cat.type === "EXPENSE") || [];
+  const incomeCategories = Array.isArray(categories)
+    ? categories.filter((cat) => cat.type === "INCOME")
+    : [];
+  const expenseCategories = Array.isArray(categories)
+    ? categories.filter((cat) => cat.type === "EXPENSE")
+    : [];
 
   return (
     <Select

@@ -36,7 +36,7 @@ export function TransactionCategoryPicker({
         <SelectValue placeholder="Selecione uma categoria" />
       </SelectTrigger>
       <SelectContent>
-        {categories?.map((category) => (
+        {(Array.isArray(categories) ? categories : []).map((category) => (
           <SelectItem
             key={category.id}
             value={category.id}

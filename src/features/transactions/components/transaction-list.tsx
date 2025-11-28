@@ -118,7 +118,7 @@ export function TransactionList({ dateFrom, dateTo }: TransactionListProps) {
       {hasTransactions ? (
         <div className="space-y-4">
           <div className="space-y-3">
-            {transactions.results?.map((transaction) => (
+            {(Array.isArray(transactions.results) ? transactions.results : []).map((transaction) => (
               <TransactionItem
                 key={transaction.id}
                 transaction={transaction}
