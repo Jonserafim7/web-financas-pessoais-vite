@@ -177,7 +177,7 @@ function ChartTooltipContent({
     >
       {!nestLabel ? tooltipLabel : null}
       <div className="grid gap-1.5">
-        {payload
+        {(Array.isArray(payload) ? payload : [])
           .filter((item) => item.type !== "none")
           .map((item, index) => {
             const key = `${nameKey || item.name || item.dataKey || "value"}`
@@ -275,7 +275,7 @@ function ChartLegendContent({
         className
       )}
     >
-      {payload
+      {(Array.isArray(payload) ? payload : [])
         .filter((item) => item.type !== "none")
         .map((item) => {
           const key = `${nameKey || item.dataKey || "value"}`

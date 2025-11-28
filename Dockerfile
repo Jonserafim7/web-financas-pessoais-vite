@@ -1,34 +1,55 @@
 # ==============================================================================
-# DOCKERFILE SIMPLIFICADO - WEB FINANÇAS PESSOAIS
-# Imagem single-stage para facilitar aprendizado e debugging
+# DOCKERFILE DE PRODUÇÃO - WEB FINANÇAS PESSOAIS
+# Multi-stage build: Build → Serve
 # ==============================================================================
 
-FROM node:20-alpine
-# Imagem base: Node.js 20 na versão Alpine (leve, ~70MB)
+# ------------------------------------------------------------------------------
+# STAGE 1: BUILD
+# Compila TypeScript e gera assets estáticos otimizados
+# ------------------------------------------------------------------------------
+FROM node:20-alpine AS builder
 
 WORKDIR /app
-# Define /app como diretório de trabalho dentro do container
 
 # Copiar arquivos de dependências
 COPY package*.json ./
 # Copia package.json e package-lock.json
 
-# Instalar todas as dependências
+# Instalar TODAS as dependências (incluindo devDeps para build)
 RUN npm ci
 # npm ci: Instala dependências exatamente como em package-lock.json
-# Inclui devDependencies (necessárias para rodar o servidor Vite)
+# devDependencies são necessárias para TypeScript, Vite, etc.
 
 # Copiar código fonte
 COPY . .
 # Copia todo o código fonte (src/, index.html, vite.config.ts, etc.)
 # .dockerignore define o que será ignorado (node_modules, .git, etc.)
 
-# Expor porta do servidor Vite
-EXPOSE 5173
-# Documenta que o container escuta na porta 5173 (porta padrão do Vite)
+# Build de produção (TypeScript + Vite)
+RUN npm run build
+# Executa: tsc -b && vite build
+# Gera arquivos otimizados em /app/dist
 
-# Comando padrão (pode ser sobrescrito pelo docker-compose.yml)
-CMD ["npm", "run", "dev"]
-# Inicia o servidor de desenvolvimento do Vite
-# Hot-reload funciona automaticamente quando arquivos são alterados
+# ------------------------------------------------------------------------------
+# STAGE 2: SERVE
+# Servidor web leve para arquivos estáticos
+# ------------------------------------------------------------------------------
+FROM nginx:alpine AS production
 
+# Copiar apenas os arquivos buildados (não node_modules, não src)
+COPY --from=builder /app/dist /usr/share/nginx/html
+# Copia APENAS /app/dist do stage anterior
+# Resultado: imagem final ~30MB (vs ~500MB+ com Node.js)
+
+# Configuração customizada do Nginx (SPA routing)
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Sobrescreve a config padrão do Nginx
+# Necessário para suportar roteamento de SPA (React Router)
+
+# Porta padrão do Nginx
+EXPOSE 80
+# Documenta que o container escuta na porta 80
+
+# Nginx roda em foreground
+CMD ["nginx", "-g", "daemon off;"]
+# daemon off: Mantém o Nginx em foreground (necessário para Docker)

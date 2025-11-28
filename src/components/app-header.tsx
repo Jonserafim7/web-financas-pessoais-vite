@@ -3,7 +3,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { useSignOut } from "@/features/auth/hooks/use-sign-out";
 import { CircleDollarSign, LogOutIcon } from "lucide-react";
 import { useSession } from "@/features/auth/hooks/use-session";
-import { Separator } from "./ui/separator";
+import { ErrorButton } from "./error-button";
 
 interface AppHeaderProps {
   title: string;
@@ -27,6 +27,7 @@ export function AppHeader({ title }: AppHeaderProps) {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <ErrorButton />
           <ModeToggle />
           <Button
             size={"icon"}
