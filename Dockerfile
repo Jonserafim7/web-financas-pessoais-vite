@@ -11,6 +11,20 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Definir ARGs que serão passados durante o build do Docker
+ARG VITE_SENTRY_DSN
+ARG VITE_API_URL
+ARG SENTRY_AUTH_TOKEN
+# ARGs são variáveis disponíveis apenas durante o build da imagem
+# Devem ser passadas via docker-compose.yml ou docker build --build-arg
+
+# Converter ARGs em variáveis de ambiente para o Vite usar
+ENV VITE_SENTRY_DSN=$VITE_SENTRY_DSN
+ENV VITE_API_URL=$VITE_API_URL
+ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
+# Vite substitui import.meta.env.VITE_* em BUILD TIME
+# Essas ENVs precisam estar disponíveis durante npm run build
+
 # Copiar arquivos de dependências
 COPY package*.json ./
 # Copia package.json e package-lock.json
@@ -28,7 +42,8 @@ COPY . .
 # Build de produção (TypeScript + Vite)
 RUN npm run build
 # Executa: tsc -b && vite build
-# Gera arquivos otimizados em /app/dist
+# Durante o build, Vite substitui VITE_* pelas ENVs acima
+# Gera arquivos otimizados em /app/dist com valores corretos
 
 # ------------------------------------------------------------------------------
 # STAGE 2: SERVE
