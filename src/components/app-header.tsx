@@ -3,7 +3,6 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { useSignOut } from "@/features/auth/hooks/use-sign-out";
 import { CircleDollarSign, LogOutIcon } from "lucide-react";
 import { useSession } from "@/features/auth/hooks/use-session";
-import { Separator } from "./ui/separator";
 
 interface AppHeaderProps {
   title: string;
