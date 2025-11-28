@@ -13,6 +13,7 @@ import {
   type DateRangeValue,
 } from "@/components/date-range-picker";
 
+
 export const Route = createFileRoute("/_protected/")({
   component: Index,
 });

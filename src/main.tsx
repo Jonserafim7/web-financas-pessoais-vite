@@ -10,7 +10,7 @@ import { routeTree } from "./routeTree.gen";
 import { Spinner } from "./components/ui/spinner";
 
 Sentry.init({
-  dsn: "https://f6082a98ad580f26220840d8f63c370f@o4510440027324416.ingest.us.sentry.io/4510440028241920",
+  dsn: import.meta.env.VITE_SENTRY_DSN,
   // Setting this option to true will send default PII data to Sentry.
   // For example, automatic IP address collection on events
   sendDefaultPii: true,
