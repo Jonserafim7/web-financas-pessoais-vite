@@ -57,7 +57,13 @@ function InnerApp() {
 // Render the app
 const rootElement = document.getElementById("root")!;
 if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement);
+  const root = ReactDOM.createRoot(rootElement, {
+    onUncaughtError: Sentry.reactErrorHandler((error, errorInfo) => {
+      console.warn("Uncaught error", error, errorInfo.componentStack);
+    }),
+    onCaughtError: Sentry.reactErrorHandler(),
+    onRecoverableError: Sentry.reactErrorHandler(),
+  });
   root.render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
